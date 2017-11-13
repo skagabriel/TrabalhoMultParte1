@@ -5,6 +5,8 @@ output: pdf_document
 
 
 ```{r, lendo os dados, echo=FALSE, warning=FALSE, message=FALSE}
+
+#testando github ignorar comentario
 library(car)
 library(MASS)
 library(plyr)

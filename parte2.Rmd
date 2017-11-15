@@ -15,7 +15,7 @@ library(ggplot2)
 library(xtable)
 library(devtools)
 
-dados <- read.table("moscas.csv", header = TRUE, sep = ";")
+dados <- read.table("moscas_0_1.txt", header = TRUE)
 attach(dados)
 especie <- dados[,1]
 n <- nrow(dados)
@@ -61,15 +61,15 @@ plot(data.frame(cp1,cp2,cp3), col=mycolors[factor(especie)], pch = c(4,16))
 par(mfrow=c(1,3))
 boxplot(cp1~especie,cex=1.2,cex.lab=1.2,xlab="CP1")
 boxplot(cp2~especie,cex=1.2,cex.lab=1.2,xlab="CP2")
-boxplot(cp3~especie,cex=1.2,cex.lab=1.2,xlab="CP3")
+boxplot(cp3~especie,cex=1.2,cex.lab=1.2,xlab="CP3");abline(-0.3169562,0,lty=2)
 
 par(mfrow=c(3,2))
-hist(cp1[especie=="Torrens"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=6, main="CP1",xlab="",ylab="")
-hist(cp1[especie=="Carteri"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=8, main="CP1",xlab="",ylab="")
-hist(cp2[especie=="Torrens"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=6,main="CP2",xlab="",ylab="")
-hist(cp2[especie=="Carteri"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=6,main="CP2",xlab="",ylab="")
-hist(cp3[especie=="Torrens"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=4,main="CP3",xlab="",ylab="")
-hist(cp3[especie=="Carteri"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=4,main="CP3",xlab="",ylab="")
+hist(cp1[especie=="0"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=6, main="CP1",xlab="",ylab="")
+hist(cp1[especie=="1"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=8, main="CP1",xlab="",ylab="")
+hist(cp2[especie=="0"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=6,main="CP2",xlab="",ylab="")
+hist(cp2[especie=="1"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=6,main="CP2",xlab="",ylab="")
+hist(cp3[especie=="0"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=4,main="CP3",xlab="",ylab="")
+hist(cp3[especie=="1"], freq=TRUE, xlim=c(-6,6), ylim=c(0,20), breaks=4,main="CP3",xlab="",ylab="")
 
 
 ```
@@ -91,7 +91,19 @@ especief<-dados[,1]
 # Componente 1
 fit.model1 <- lm(cp1~especief)
 m.residuo1 <- studres(fit.model1)
-summary(fit.model1)
+sumario <- summary(fit.model1)
+
+
+#Componente 2
+fit.model2 <- lm(cp2~especief)
+m.residuo1 <- studres(fit.model2)
+summary(fit.model2)
+
+#Componente 3
+fit.model3 <- lm(cp3~especief)
+m.residuo1 <- studres(fit.model3)
+summary(fit.model3)
+
 
 par(mfrow =c(1,1))
 plot(m.residuo1,ylim=c(min(-3,min(m.residuo1)),max(3,max(m.residuo1))),xlab="índice",ylab="resíduo studentizado", main = "Residuos do modelo com a Componente 1")
@@ -106,13 +118,13 @@ qqPlot(m.residuo1,dist="norm",mean=0,sd=1,col.lines=1,grid="FALSE",xlab="quantil
 
 
 comp.certas <- cbind(cp1, cp2, cp3)
-bla <-NULL
-bla[dados[,1]=="Torrens"]<-"T"
-bla[dados[,1]=="Carteri"]<-"C"
+#bla <-NULL
+#bla[dados[,1]=="Torrens"]<-"T"
+#bla[dados[,1]=="Carteri"]<-"C"
 par(mfrow = c(1,1))
-biplot(result.cp.cor,1:2,xlabs=bla)
-biplot(result.cp.cor,c(1,3),xlabs=bla)
-ggbiplot(result.cp.cor,choices = 2:3, scale = 1, pc.biplot = TRUE, xlabs=bla)
+biplot(result.cp.cor,1:2)
+biplot(result.cp.cor,c(1,3))
+biplot(result.cp.cor,choices = 2:3, scale = 1, pc.biplot = TRUE)
 ```
 
 
@@ -134,4 +146,18 @@ qqPlot((m.residuo1),dist="norm",mean=0,sd=1,col.lines=1,grid="FALSE",xlab="quant
 
 ```
 
+```{r}
+  source("gg_qq.r")
+  temp <- rstudent(fit.model1)
+  teste <- c("Carteri", "Torrens")
+  gg_qq(temp)
+```
+
+```{r}
+# IC TORRENS
+ic.torrens <- summary(fit.model1)$coefficients[[1]] + c(-1,1)*summary(fit.model1)$coefficients[[3]]*qnorm(0.975)
+
+# IC CARTERI
+ic.carteri <- summary(fit.model1)$coefficients[[2]] + summary(fit.model1)$coefficients[[1]] + c(-1,1)*summary(fit.model1)$coefficients[[3]]*qnorm(0.975)
+```
 
